@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-info
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pod-info
+  template:
+    metadata:
+      name: pod-info
+      labels:
+        app: pod-info
+    spec:
+      containers:
+        - name: pod-info
+          image: scanlonjts/pod-info:0.1.0
+          ports:
+            - containerPort: 8888
+              name: http
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name                
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pod-info-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: pod-info
+  ports:
+  - protocol: TCP
+    port: 8888  # You can choose any external port here
+    targetPort: 8888
