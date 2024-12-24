@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: podinfo
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - clusters: {}
+  template:
+    metadata:
+      name: '{{.cluster}}-podinfo'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/Architects-that-code/global-cluster.git
+        targetRevision: HEAD
+        path: apps/podinfo
+      destination:
+        server: '{{.url}}'
+        namespace: shared
